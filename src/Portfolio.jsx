@@ -90,18 +90,23 @@ const Portfolio = () => {
   setFolders(toggle(folders));
 };
 
+const handleAddFolder = async (parentFolderId = null) => {
+  if (typeof parentFolderId === "object" && parentFolderId?.target) {
+    console.warn("Fix your button call: received event instead of folderId.");
+    parentFolderId = null;
+  }
 
-  const handleAddFolder = async (parentFolderId = null) => {
   const name = prompt("Enter folder name:");
   if (!name?.trim()) return;
+
+  const payload = { folderName: name.trim() };
+  if (parentFolderId) payload.parentFolder = parentFolderId;
+
   try {
-    await API.post('/folders', {
-      folderName: name.trim(),
-      parentFolder: parentFolderId,  
-    });
+    await API.post('/folders', payload);
     fetchFolders();
   } catch (err) {
-    console.error("Error creating folder:", err);
+    console.error("Error creating folder:", err?.message || err);
     alert("Could not create folder. See console.");
   }
 };
